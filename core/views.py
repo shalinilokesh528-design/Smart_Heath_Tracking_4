@@ -553,11 +553,16 @@ def therapist_dashboard(request):
         status='acknowledged'
     ).order_by('-created_at')[:10]
 
+    therapist_videos = ExerciseVideo.objects.filter(
+        therapist=request.user
+    ).order_by('-created_at')[:8]
+
     return render(request, 'core/therapist_dashboard.html', {
         'patients': patients,
         'active_sos_alerts': active_sos_alerts,
         'acknowledged_sos_alerts': acknowledged_sos_alerts,
         'upcoming_appointments': upcoming_appointments,
+        'therapist_videos': therapist_videos,
     })
 
 

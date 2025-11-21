@@ -92,6 +92,20 @@
       grid-template-columns: 1fr;
     }
   }
+  .btn-ack {
+    background: #00897b;
+    color: #fff;
+  }
+  .btn-resolve {
+    background: #4caf50;
+    color: #fff;
+  }
+  .btn-ack:hover {
+    background: #00695c;
+  }
+  .btn-resolve:hover {
+    background: #2e7d32;
+  }
 </style>
 
 <div class="page-wrap">
@@ -167,6 +181,7 @@
               <th>Patient</th>
               <th>Message</th>
               <th>Time</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -175,6 +190,20 @@
                 <td>{{ alert.patient.get_full_name|default:alert.patient.username }}</td>
                 <td>{{ alert.message|truncatechars:40 }}</td>
                 <td>{{ alert.created_at|date:"d M Y H:i" }}</td>
+                <td>
+                  <form method="post" action="{% url 'acknowledge_sos_alert' alert.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-small btn-ack">
+                      <i class="fas fa-check-circle"></i> Ack
+                    </button>
+                  </form>
+                  <form method="post" action="{% url 'resolve_sos_alert' alert.id %}" style="display:inline; margin-left:4px;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-small btn-resolve">
+                      <i class="fas fa-check-double"></i> Resolve
+                    </button>
+                  </form>
+                </td>
               </tr>
             {% endfor %}
           </tbody>
@@ -203,6 +232,7 @@
               <th>Patient</th>
               <th>Status</th>
               <th>Ack. Time</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -213,6 +243,14 @@
                   <span class="tag tag-ack">Acknowledged</span>
                 </td>
                 <td>{{ alert.acknowledged_at|date:"d M Y H:i" }}</td>
+                <td>
+                  <form method="post" action="{% url 'resolve_sos_alert' alert.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-small btn-resolve">
+                      <i class="fas fa-check-double"></i> Resolve
+                    </button>
+                  </form>
+                </td>
               </tr>
             {% endfor %}
           </tbody>
@@ -254,6 +292,48 @@
         </p>
       {% endif %}
     </div>
+  </div>
+
+  <!-- Therapist Exercise Videos (Suggestions for Patients) -->
+  <div class="card">
+    <h3>
+      <i class="fas fa-video"></i>
+      Your Exercise Videos (Suggested for Patients)
+    </h3>
+    {% if therapist_videos %}
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Difficulty</th>
+            <th>Created</th>
+            <th>Views</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for video in therapist_videos %}
+          <tr>
+            <td>{{ video.title }}</td>
+            <td>{{ video.get_exercise_type_display }}</td>
+            <td>{{ video.get_difficulty_level_display }}</td>
+            <td>{{ video.created_at|date:"d M Y" }}</td>
+            <td>{{ video.views_count }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p style="margin-top:10px; font-size:13px;">
+        Manage all videos from the
+        <a href="{% url 'therapist_videos' %}">Therapist Video Library</a>.
+      </p>
+    {% else %}
+      <p style="font-size: 14px; color:#666;">
+        You have not uploaded any exercise videos yet.
+        <a href="{% url 'upload_exercise_video' %}">Upload your first video</a>
+        to start suggesting exercises to patients.
+      </p>
+    {% endif %}
   </div>
 </div>
 {% endblock %}
